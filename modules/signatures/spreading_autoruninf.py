@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Michael Boman (@mboman)
+# Copyright (C) 2012 Thomas "stacks" Birn (@stacksth)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,19 +15,18 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class UPXCompressed(Signature):
-    name = "upx_compressed"
-    description = "The executable is compressed using UPX"
+class CreatesAutorunInf(Signature):
+    name = "spreading_autoruninf"
+    description = "Creates an autorun.inf file"
     severity = 2
-    categories = ["packers"]
-    authors = ["Michael Boman"]
-    minimum = "0.4"
+    categories = ["spreading"]
+    authors = ["Thomas Birn"]
+    minimum = "0.4.2"
 
     def run(self, results):
-        if "pe_sections" in results["static"]:
-            for pe_section in results["static"]["pe_sections"]:
-                if pe_section["name"].startswith("UPX"):
-                    self.data.append({"pe_section" : pe_section})
-                    return True
+        for file_name in results["behavior"]["summary"]["files"]:
+            if file_name.endswith("autorun.inf"):
+                self.data.append({"file_name": file_name})
+                return True
 
         return False

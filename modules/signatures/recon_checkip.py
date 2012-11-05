@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Michael Boman (@mboman)
+# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,18 +15,26 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class EmptyFile(Signature):
-    name = "empty_file"
-    description = "Creates a empty file"
+class CheckIP(Signature):
+    name = "recon_checkip"
+    description = "Looks up the external IP address"
     severity = 2
-    categories = ["generic"]
-    authors = ["Michael Boman"]
-    minimum = "0.4"
+    categories = ["recon"]
+    authors = ["nex"]
 
     def run(self, results):
-        for dropped_file in results["dropped"]:
-            if dropped_file["size"] == 0:
-                self.data.append({"dropped_file" : dropped_file})
-                return True
+        indicators = [
+            "checkip.dyndns.org",
+            "whatismyip.org",
+            "whatsmyipaddress.com",
+            "getmyip.org",
+            "getmyip.co.uk"
+        ]
+
+        if results["network"]:
+            for dns in results["network"]["dns"]:
+                if dns["hostname"] in indicators:
+                    self.data.append({"hostname" : dns["hostname"]})
+                    return True
 
         return False

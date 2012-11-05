@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2012 Thomas "stacks" Birn (@stacksth)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,19 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from lib.cuckoo.common.abstracts import Signature
 
-class SpyEyeMutexes(Signature):
-    name = "spyeye_mutexes"
-    description = "Creates known SpyEye mutexes"
+class InstallsWinpcap(Signature):
+    name = "sniffer_winpcap"
+    description = "Installs WinPCAP"
     severity = 3
-    categories = ["malware", "banker"]
-    authors = ["nex"]
+    categories = ["sniffer"]
+    authors = ["Thomas Birn"]
+    minimum = "0.4.2"
 
     def run(self, results):
-        for mutex in results["behavior"]["summary"]["mutexes"]:
-            if mutex.startswith("zXeRY3a_PtW") or mutex.startswith("SPYNET"):
-                self.data.append({"mutex" : mutex})
-                return True
+        indicators = [
+            ".*\\\\packet.dll",
+            ".*\\\\npf.sys",
+            ".*\\\\wpcap.dll"
+        ]
+
+        regexps = [re.compile(indicator) for indicator in indicators]
+        
+        for file_name in results["behavior"]["summary"]["files"]:
+            for regexp in regexps:
+                if regexp.match(file_name):
+                    self.data.append({"file_name" : file_name})
+                    return True
 
         return False
