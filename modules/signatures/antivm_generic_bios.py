@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2013 Claudio "nex" Guarnieri (@botherder)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,13 +15,18 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class AntiVMBios(Signature):
+    name = "antivm_generic_bios"
+    description = "Checks the version of Bios, possibly for anti-virtualization"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        if self.check_key(pattern="HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System"):
+            if (self.check_argument(pattern="SystemBiosVersion", name="ValueName", category="registry") or
+                self.check_argument(pattern="VideoBiosVersion", name="ValueName", category="registry")):
+                return True
+
+        return False

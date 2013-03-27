@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2013 Claudio "nex" Guarnieri (@botherder)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,13 +15,13 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class VBoxDetectCDROM(Signature):
+    name = "antivm_vbox_cdrom"
+    description = "Detects VirtualBox through the presence of the CD-ROM device"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        return self.check_file(pattern="IDE\\#CdRomVBOX\\_CD.*", regex=True)

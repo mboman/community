@@ -15,13 +15,21 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class ADS(Signature):
+    name = "persistence_ads"
+    description = "Creates an Alternate Data Stream (ADS)"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["persistence", "ads"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        for file_path in self.results["behavior"]["summary"]["files"]:
+            if len(file_path) <= 3:
+                continue
+
+            if ":" in file_path.split("\\")[-1]:
+                self.data.append({"file" : file_path})
+                return True
+
+        return False

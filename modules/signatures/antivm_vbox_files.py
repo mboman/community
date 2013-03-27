@@ -15,29 +15,36 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class FTPStealer(Signature):
-    name = "infostealer_ftp"
-    description = "Harvests credentials from local FTP client softwares"
+class VBoxDetectFiles(Signature):
+    name = "antivm_vbox_files"
+    description = "Detects VirtualBox through the presence of a file"
     severity = 3
-    categories = ["infostealer"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
         indicators = [
-            ".*\\\\CuteFTP\\\\sm\.dat$",
-            ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
-            ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
-            ".*\\\\FileZilla\\\\sitemanager\.xml$",
-            ".*\\\\FileZilla\\\\recentservers\.xml$",
-            ".*\\\\VanDyke\\\\Config\\\\Sessions.*",
-            ".*\\\\FTP Explorer\\\\.*"
-            ".*\\\\SmartFTP\\\\.*",
-            ".*\\\\TurboFTP\\\\.*",
-            ".*\\\\FTPRush\\\\.*",
-            ".*\\\\LeapFTP\\\\.*",
-            ".*\\\\FTPGetter\\\\.*",
-            ".*\\\\ALFTP\\\\.*"
+            ".*VBoxDisp\.dll$",
+            ".*VBoxHook\.dll$",
+            ".*VBoxMRXNP\.dll$",
+            ".*VBoxOGL\.dll$",
+            ".*VBoxOGLarrayspu\.dll$",
+            ".*VBoxOGLcrutil\.dll$",
+            ".*VBoxOGLerrorspu\.dll$",
+            ".*VBoxOGLfeedbackspu\.dll$",
+            ".*VBoxOGLpackspu\.dll$",
+            ".*VBoxOGLpassthroughspu\.dll$"
+            ".*VBoxDisp\.dll$",
+            ".*VBoxSF\.sys$",
+            ".*VBoxControl\.exe$",
+            ".*VBoxService\.exe$",
+            ".*VBoxTray\.exe$",
+            ".*VBoxDrvInst\.exe$",
+            ".*VBoxWHQLFake\.exe$",
+            ".*VBoxGuest\.[a-zA-Z]{3}$",
+            ".*VBoxMouse\.[a-zA-Z]{3}$",
+            ".*VBoxVideo\.[a-zA-Z]{3}$"
         ]
 
         for indicator in indicators:

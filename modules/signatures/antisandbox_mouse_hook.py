@@ -15,13 +15,28 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class HookMouse(Signature):
+    name = "antisandbox_mouse_hook"
+    description = "Installs an hook procedure to monitor for mouse events"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["hooking", "anti-sandbox"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        for process in self.results["behavior"]["processes"]:
+            for call in process["calls"]:
+                if not call["api"].startswith("SetWindowsHookEx"):
+                    continue
+
+                arguments = 0
+                for argument in call["arguments"]:
+                    if argument["name"] == "HookIdentifier" and int(argument["value"]) in [7, 14]:
+                        arguments += 1
+                    elif argument["name"] == "ThreadId" and int(argument["value"]) == 0:
+                        arguments += 1
+
+                if arguments == 2:
+                    return True
+
+        return False

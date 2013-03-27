@@ -15,13 +15,14 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class AntiVMIDE(Signature):
+    name = "antivm_generic_ide"
+    description = "Checks the presence of IDE drives in the registry, possibly for anti-virtualization"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        return self.check_key(pattern=".*\\\\SYSTEM\\\\CurrentControlSet\\\\Enum\\\\IDE$",
+                              regex=True)

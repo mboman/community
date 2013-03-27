@@ -15,13 +15,16 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class SystemInfo(Signature):
+    name = "recon_systeminfo"
+    description = "Collects information on the system (ipconfig, netstat, systeminfo)"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["recon"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        return self.check_argument(pattern="(^cmd\.exe).*[(systeminfo)|(ipconfig)|(netstat)]",
+                                   name="CommandLine",
+                                   category="process",
+                                   regex=True)

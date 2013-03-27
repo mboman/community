@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Anderson Tamborim (@y2h4ck)
+# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,21 +15,23 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class VBoxDetectLibs(Signature):
-    name = "antivm_vbox_libs"
-    description = "Detects VirtualBox through the presence of a library"
+class VBoxDetectWindow(Signature):
+    name = "antivm_vbox_window"
+    description = "Detects VirtualBox through the presence of a window"
     severity = 3
     categories = ["anti-vm"]
-    authors = ["Anderson Tamborim"]
-    minimum = "0.4.2"
+    authors = ["nex"]
+    minimum = "0.5"
 
-    def run(self, results):
-        for process in results["behavior"]["processes"]:
-            for call in process["calls"]:
-                if call["api"] == "LdrLoadDll":
-                    for argument in call["arguments"]:
-                        if (argument["name"] == "FileName" and 
-                            "VBoxHook.dll" in argument["value"]):
-                            return True
+    def run(self):
+        indicators = [
+            "VBoxTrayToolWndClass",
+            "VBoxTrayToolWnd"
+        ]
+
+        for indicator in indicators:
+            if self.check_argument(pattern=indicator, category="window"):
+                self.data.append({"window" : indicator})
+                return True
 
         return False

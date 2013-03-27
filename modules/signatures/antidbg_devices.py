@@ -21,25 +21,24 @@ class AntiDBGDevices(Signature):
     severity = 3
     categories = ["anti-debug"]
     authors = ["nex"]
-    minimum = "0.4.1"
+    minimum = "0.5"
 
-    def run(self, results):
+    def run(self):
         indicators = [
-            "\\\\.\\SICE",
-            "\\\\.\\SIWVID",
-            "\\\\.\\NTICE",
-            "\\\\.\\REGVXG",
-            "\\\\.\\FILEVXG",
-            "\\\\.\\REGSYS",
-            "\\\\.\\FILEM",
-            "\\\\.\\TRW",
-            "\\\\.\\ICEXT"
+            ".*SICE$",
+            ".*SIWVID$",
+            ".*SIWDEBUG$",
+            ".*NTICE$",
+            ".*REGVXG$",
+            ".*FILEVXG$",
+            ".*REGSYS$",
+            ".*FILEM$",
+            ".*TRW$",
+            ".*ICEXT$"
         ]
 
-        for file_name in results["behavior"]["summary"]["files"]:
-            for indicator in indicators:
-                if file_name.upper() == indicator:
-                    self.data.append({"file" : file_name})
-                    return True
+        for indicator in indicators:
+            if self.check_file(pattern=indicator, regex=True):
+                return True
 
         return False

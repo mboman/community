@@ -15,13 +15,32 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class VBoxDetectLibs(Signature):
+    name = "antivm_vbox_libs"
+    description = "Detects VirtualBox through the presence of a library"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        indicators = [
+            "VBoxDisp.dll",
+            "VBoxHook.dll",
+            "VBoxMRXNP.dll",
+            "VBoxOGL.dll",
+            "VBoxOGLarrayspu.dll",
+            "VBoxOGLcrutil.dll",
+            "VBoxOGLerrorspu.dll",
+            "VBoxOGLfeedbackspu.dll",
+            "VBoxOGLpackspu.dll",
+            "VBoxOGLpassthroughspu.dll"
+        ]
+
+        for indicator in indicators:
+            if self.check_argument(pattern=indicator,
+                                   name="FileName",
+                                   api="LdrLoadDll"):
+                return True
+
+        return False

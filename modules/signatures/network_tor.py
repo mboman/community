@@ -15,13 +15,27 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class Tor(Signature):
+    name = "network_tor"
+    description = "Installs Tor on the infected machine"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["network", "anonimity", "tor"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        indicators = [
+            ".*\\\\tor\\\\cached-certs$",
+            ".*\\\\tor\\\\cached-consensus$",
+            ".*\\\\tor\\\\cached-descriptors$",
+            ".*\\\\tor\\\\geoip$",
+            ".*\\\\tor\\\\lock$",
+            ".*\\\\tor\\\\state$",
+            ".*\\\\tor\\\\torrc$"
+        ]
+
+        for indicator in indicators:
+            if self.check_file(pattern=indicator, regex=True):
+                return True
+
+        return False

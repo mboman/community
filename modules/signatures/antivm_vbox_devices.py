@@ -15,13 +15,27 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class WineDetect(Signature):
-    name = "antiemu_wine"
-    description = "Detects the presence of Wine emulator"
+class VBoxDetectDevices(Signature):
+    name = "antivm_vbox_devices"
+    description = "Detects VirtualBox through the presence of a device"
     severity = 3
-    categories = ["anti-emulation"]
+    categories = ["anti-vm"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
-        return self.check_key(pattern="HKEY_CURRENT_USER\\Software\\Wine")
+        indicators = [
+            "\\Device\\VBoxGuest",
+            "\\Device\\VBoxMouse",
+            "\\Device\\VBoxVideo",
+            "\\\\.\\VBoxMiniRdrDN",
+            "\\\\.\\pipe\\VBoxMiniRdDN",
+            "\\\\.\\VBoxTrayIPC",
+            "\\\\.\\pipe\\VBoxTrayIPC"
+        ]
+
+        for indicator in indicators:
+            if self.check_file(pattern=indicator):
+                return True
+
+        return False

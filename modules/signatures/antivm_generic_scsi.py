@@ -15,20 +15,20 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class AntiVMDiskIdentifier(Signature):
-    name = "antivm_disk_identifier"
+class AntiVMSCSI(Signature):
+    name = "antivm_generic_scsi"
     description = "Detects virtualization software with SCSI Disk Identifier trick"
     severity = 3
     categories = ["anti-vm"]
     authors = ["nex"]
-    minimum = "0.4.1"
+    minimum = "0.5"
 
-    def run(self, results):
+    def run(self):
         indicator_registry = "0x80000002"
         indicator_key = "HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0"
         indicator_name = "Identifier"
 
-        for process in results["behavior"]["processes"]:
+        for process in self.results["behavior"]["processes"]:
             opened = False
             for call in process["calls"]:
                 # First I check if the malware opens the releavant registry key.

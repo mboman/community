@@ -15,33 +15,36 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class FTPStealer(Signature):
-    name = "infostealer_ftp"
-    description = "Harvests credentials from local FTP client softwares"
+class Fingerprint(Signature):
+    name = "recon_fingerprint"
+    description = "Collects information to fingerprint the system (MachineGuid, DigitalProductId, SystemBiosDate)"
     severity = 3
-    categories = ["infostealer"]
+    categories = ["recon"]
     authors = ["nex"]
     minimum = "0.5"
 
     def run(self):
         indicators = [
-            ".*\\\\CuteFTP\\\\sm\.dat$",
-            ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
-            ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
-            ".*\\\\FileZilla\\\\sitemanager\.xml$",
-            ".*\\\\FileZilla\\\\recentservers\.xml$",
-            ".*\\\\VanDyke\\\\Config\\\\Sessions.*",
-            ".*\\\\FTP Explorer\\\\.*"
-            ".*\\\\SmartFTP\\\\.*",
-            ".*\\\\TurboFTP\\\\.*",
-            ".*\\\\FTPRush\\\\.*",
-            ".*\\\\LeapFTP\\\\.*",
-            ".*\\\\FTPGetter\\\\.*",
-            ".*\\\\ALFTP\\\\.*"
+            "MachineGuid",
+            "DigitalProductId",
+            "SystemBiosDate"
         ]
 
-        for indicator in indicators:
-            if self.check_file(pattern=indicator, regex=True):
-                return True
+        threshold = 3
+        matches = 0
+
+        for process in self.results["behavior"]["processes"]:
+            for call in process["calls"]:
+                if call["category"] != "registry":
+                    continue
+
+                for argument in call["arguments"]:
+                    for indicator in indicators:
+                        if argument["value"] == indicator:
+                            indicators.remove(indicator)
+                            matches += 1
+
+        if matches >= threshold:
+            return True
 
         return False

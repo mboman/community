@@ -21,12 +21,7 @@ class Ruskill(Signature):
     severity = 3
     alert = True
     categories = ["bot", "ddos"]
-    authors = ["JoseMi Holguin"]
+    authors = ["JoseMi Holguin", "nex"]
 
-    def run(self, results):
-        for mutex in results["behavior"]["summary"]["mutexes"]:
-            if mutex == "FvLQ49IlzIyLjj6m":
-                self.data.append({"mutex" : mutex})
-                return True
-
-        return False
+    def run(self):
+        return self.check_mutex(pattern="FvLQ49IlzIyLjj6m")
