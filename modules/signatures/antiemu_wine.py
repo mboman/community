@@ -15,27 +15,16 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class CheckIP(Signature):
-    name = "recon_checkip"
-    description = "Looks up the external IP address"
-    severity = 2
-    categories = ["recon"]
+class WineDetect(Signature):
+    name = "antiemu_wine"
+    description = "Detects the presence of Wine emulator"
+    severity = 3
+    categories = ["anti-emulation"]
     authors = ["nex"]
-    maximum = "0.4.2"
 
     def run(self, results):
-        indicators = [
-            "checkip.dyndns.org",
-            "whatismyip.org",
-            "whatsmyipaddress.com",
-            "getmyip.org",
-            "getmyip.co.uk"
-        ]
-
-        if results["network"]:
-            for dns in results["network"]["dns"]:
-                if dns["hostname"] in indicators:
-                    self.data.append({"hostname" : dns["hostname"]})
-                    return True
+        for key in results["behavior"]["summary"]["keys"]:
+            if key == "HKEY_CURRENT_USER\\Software\\Wine":
+                return True
 
         return False

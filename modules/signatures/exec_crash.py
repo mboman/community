@@ -15,27 +15,21 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class CheckIP(Signature):
-    name = "recon_checkip"
-    description = "Looks up the external IP address"
-    severity = 2
-    categories = ["recon"]
+class Crash(Signature):
+    name = "exec_crash"
+    description = "At least one process apparently crashed during execution"
+    severity = 1
+    categories = ["execution", "crash"]
     authors = ["nex"]
-    maximum = "0.4.2"
+    minimum = "0.4.2"
 
     def run(self, results):
-        indicators = [
-            "checkip.dyndns.org",
-            "whatismyip.org",
-            "whatsmyipaddress.com",
-            "getmyip.org",
-            "getmyip.co.uk"
-        ]
-
-        if results["network"]:
-            for dns in results["network"]["dns"]:
-                if dns["hostname"] in indicators:
-                    self.data.append({"hostname" : dns["hostname"]})
-                    return True
+        for process in results["behavior"]["processes"]:
+            for call in process["calls"]:
+                if call["api"] == "LdrLoadDll":
+                    for argument in call["arguments"]:
+                        if (argument["name"] == "FileName" and
+                            "faultrep.dll" in argument["value"]):
+                            return True
 
         return False

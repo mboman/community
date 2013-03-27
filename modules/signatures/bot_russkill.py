@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2012 JoseMi Holguin (@j0sm1)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,27 +15,18 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class CheckIP(Signature):
-    name = "recon_checkip"
-    description = "Looks up the external IP address"
-    severity = 2
-    categories = ["recon"]
-    authors = ["nex"]
-    maximum = "0.4.2"
+class Ruskill(Signature):
+    name = "bot_russkill"
+    description = "Creates known Ruskill mutexes"
+    severity = 3
+    alert = True
+    categories = ["bot", "ddos"]
+    authors = ["JoseMi Holguin"]
 
     def run(self, results):
-        indicators = [
-            "checkip.dyndns.org",
-            "whatismyip.org",
-            "whatsmyipaddress.com",
-            "getmyip.org",
-            "getmyip.co.uk"
-        ]
-
-        if results["network"]:
-            for dns in results["network"]["dns"]:
-                if dns["hostname"] in indicators:
-                    self.data.append({"hostname" : dns["hostname"]})
-                    return True
+        for mutex in results["behavior"]["summary"]["mutexes"]:
+            if mutex == "FvLQ49IlzIyLjj6m":
+                self.data.append({"mutex" : mutex})
+                return True
 
         return False

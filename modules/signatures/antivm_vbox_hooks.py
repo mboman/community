@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2012 Anderson Tamborim (@y2h4ck)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,27 +15,21 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class CheckIP(Signature):
-    name = "recon_checkip"
-    description = "Looks up the external IP address"
-    severity = 2
-    categories = ["recon"]
-    authors = ["nex"]
-    maximum = "0.4.2"
+class VBoxDetectLibs(Signature):
+    name = "antivm_vbox_libs"
+    description = "Detects VirtualBox through the presence of a library"
+    severity = 3
+    categories = ["anti-vm"]
+    authors = ["Anderson Tamborim"]
+    minimum = "0.4.2"
 
     def run(self, results):
-        indicators = [
-            "checkip.dyndns.org",
-            "whatismyip.org",
-            "whatsmyipaddress.com",
-            "getmyip.org",
-            "getmyip.co.uk"
-        ]
-
-        if results["network"]:
-            for dns in results["network"]["dns"]:
-                if dns["hostname"] in indicators:
-                    self.data.append({"hostname" : dns["hostname"]})
-                    return True
+        for process in results["behavior"]["processes"]:
+            for call in process["calls"]:
+                if call["api"] == "LdrLoadDll":
+                    for argument in call["arguments"]:
+                        if (argument["name"] == "FileName" and 
+                            "VBoxHook.dll" in argument["value"]):
+                            return True
 
         return False
