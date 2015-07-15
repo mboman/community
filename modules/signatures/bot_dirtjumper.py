@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Claudio "nex" Guarnieri (@botherder)
+# Copyright (C) 2012-2014 Claudio "nex" Guarnieri (@botherder)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,14 +21,13 @@ class DirtJumper(Signature):
     severity = 3
     categories = ["bot", "ddos"]
     families = ["dirtjumper"]
-    authors = ["nex"]
-    minimum = "0.5"
+    authors = ["nex","jjones"]
+    minimum = "1.2"
 
     def run(self):
         if "network" in self.results:
             for http in self.results["network"]["http"]:
-                if http["method"] == "POST" and http["body"].startswith("k="):
-                    self.data.append({"url" : http["uri"], "data" : http["body"]})
-                    return True
+                if http["method"] == "POST" and http["body"].startswith("k=") and http.get("user-agent", "") == "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)":
+                    self.add_match(None, 'http', http)
 
-        return False
+        return self.has_matches()

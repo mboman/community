@@ -21,27 +21,43 @@ class FTPStealer(Signature):
     severity = 3
     categories = ["infostealer"]
     authors = ["nex"]
-    minimum = "0.5"
+    minimum = "1.2"
 
     def run(self):
-        indicators = [
+        file_indicators = [
             ".*\\\\CuteFTP\\\\sm\.dat$",
             ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
             ".*\\\\FlashFXP\\\\.*\\\\Sites\.dat$",
             ".*\\\\FileZilla\\\\sitemanager\.xml$",
             ".*\\\\FileZilla\\\\recentservers\.xml$",
-            ".*\\\\VanDyke\\\\Config\\\\Sessions.*",
+            ".*\\\\VanDyke\\\\Config\\\\Sessions\\\\.*",
             ".*\\\\FTP Explorer\\\\.*"
             ".*\\\\SmartFTP\\\\.*",
             ".*\\\\TurboFTP\\\\.*",
             ".*\\\\FTPRush\\\\.*",
             ".*\\\\LeapFTP\\\\.*",
             ".*\\\\FTPGetter\\\\.*",
-            ".*\\\\ALFTP\\\\.*"
+            ".*\\\\ALFTP\\\\.*",
+            ".*\\\\Ipswitch\\\\WS_FTP.*",
         ]
 
-        for indicator in indicators:
-            if self.check_file(pattern=indicator, regex=True):
-                return True
+        registry_indicators = [
+            ".*Software\\Far*\\Hosts$",
+            ".*Software\\Far*\\FTPHost$",
+            ".*Software\\Ghisler\\Windows Commander$",
+            ".*Software\\Ghisler\\Total Commander$",
+            ".*Software\\BPFTP\\$",
+            ".*Software\\BulletProof Software\BulletProof FTP Client\\$"
+        ]
 
-        return False
+        for indicator in file_indicators:
+            subject = self.check_file(pattern=indicator, regex=True)
+            if subject:
+                self.add_match(None, 'file', subject)
+                
+        for indicator in registry_indicators:
+            subject = self.check_key(pattern=indicator, regex=True)
+            if subject:
+                self.add_match(None, 'registry', subject)
+
+        return self.has_matches()

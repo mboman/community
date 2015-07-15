@@ -21,17 +21,25 @@ class AntiDBGWindows(Signature):
     severity = 3
     categories = ["anti-debug"]
     authors = ["nex"]
-    minimum = "0.5"
+    minimum = "1.2"
+    evented = True
 
-    def run(self):
+    def on_call(self, call, process):
         indicators = [
             "OLLYDBG",
-            "WinDbgFrameClass"
+            "WinDbgFrameClass",
+            "pediy06",
+            "GBDYLLO",
+            "FilemonClass",
+            "PROCMON_WINDOW_CLASS",
+            "File Monitor - Sysinternals: www.sysinternals.com",
+            "Process Monitor - Sysinternals: www.sysinternals.com",
+            "Registry Monitor - Sysinternals: www.sysinternals.com",
         ]
 
         for indicator in indicators:
-            if self.check_argument(pattern=indicator, category="window"):
-                self.data.append({"window" : indicator})
-                return True
+            if self.check_argument_call(call, pattern=indicator, category="windows"):
+                self.add_match(process, 'api', call)
 
-        return False
+    def on_complete(self):
+        return self.has_matches()

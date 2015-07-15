@@ -15,13 +15,17 @@
 
 from lib.cuckoo.common.abstracts import Signature
 
-class VBoxDetectCDROM(Signature):
-    name = "antivm_vbox_cdrom"
-    description = "Detects VirtualBox through the presence of the CD-ROM device"
+class NetworkSMTP(Signature):
+    name = "network_smtp"
+    description = "Makes SMTP requests, possibly sending spam"
     severity = 3
-    categories = ["anti-vm"]
+    categories = ["smtp", "spam"]
     authors = ["nex"]
-    minimum = "0.5"
+    minimum = "1.2"
 
     def run(self):
-        return self.check_file(pattern="IDE\\#CdRomVBOX\\_CD.*", regex=True)
+        if "smtp" in self.results["network"]:
+            if len(self.results["network"]["smtp"]) > 0:
+                self.add_match(None, 'smtp', self.results["network"]["smtp"])
+
+        return self.has_matches()
